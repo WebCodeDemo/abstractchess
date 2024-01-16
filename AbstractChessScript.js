@@ -70,7 +70,7 @@ function makeMove(buttonId) {
 	
     
     if (tactic) {
-        const moveValue = allTactics[tactic];
+        const moveValue = allTactics[tactic] - difficultyAdjuster;
         updateEvaluation(moveValue);
 		lastTurn = moveValue;
 		displayLastTurn();
@@ -85,27 +85,45 @@ function makeMove(buttonId) {
 		if (tactic === "Stalemate" || tactic === "AcceptDraw" || tactic === "PerpetualCheck" || tactic === "MakeThreefoldRepetition") {
 			drawGame();
 			if (gameCounter == 2){ // if going into the second game, make it much harder
-				difficultyAdjuster = 10;
+				difficultyAdjuster = 2.5;
 			} else if (gameCounter == 3){ // if going into the third game, make it medium difficulty 
 				difficultyAdjuster = 1.5;
+			} else if (gameCounter == 4){
+				if (playerScore >= opponentScore){
+					alert("All three games are over! The winner is... YOU! Congratulations. Play again?")
+				} else {
+					alert("All three games are over! The winner is... Opponent! Sorry. Play again?")
+				}
 			}
 			return;
 		}
         if ((evaluation+0.1) >= NUMBERTOWIN) {
 			playerWinGame();
 			if (gameCounter == 2){ // if going into the second game, make it much harder
-				difficultyAdjuster = 10;
+				difficultyAdjuster = 2.5;
 			} else if (gameCounter == 3){ // if going into the third game, make it medium difficulty 
 				difficultyAdjuster = 1.5;
+			} else if (gameCounter == 4){
+				if (playerScore >= opponentScore){
+					alert("All three games are over! The winner is... YOU! Congratulations. Play again?")
+				} else {
+					alert("All three games are over! The winner is... Opponent! Sorry. Play again?")
+				}
 			}
             return;
 			
         } else if ((evaluation-0.1) <= -NUMBERTOWIN) {
 			opponentWinGame();
 			if (gameCounter == 2){ // if going into the second game, make it much harder
-				difficultyAdjuster = 10;
+				difficultyAdjuster = 2.5;
 			} else if (gameCounter == 3){ // if going into the third game, make it medium difficulty 
 				difficultyAdjuster = 1.5;
+			} else if (gameCounter == 4){
+				if (playerScore >= opponentScore){
+					alert("All three games are over! The winner is... YOU! Congratulations. Play again?")
+				} else {
+					alert("All three games are over! The winner is... Opponent! Sorry. Play again?")
+				}
 			}
 			return;
             
@@ -241,7 +259,11 @@ function displayEvaluation() {
 
 function displayGameCounter() {
 	const gameCounterDiv = document.getElementById("gameCounter");
-    gameCounterDiv.textContent = `Game #${gameCounter}`;
+    gameCounterDiv.innerHTML = `
+        <p>Game #${gameCounter}</p>
+        <p>Wins: ${playerScore}</p>
+		<p>Loses: ${opponentScore}</p>
+    `;
 
 
 
