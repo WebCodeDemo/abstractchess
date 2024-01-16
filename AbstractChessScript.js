@@ -1,6 +1,10 @@
 let evaluation = 0; // Initial evaluation
 let lastTurn = 0; // var for the last turns eval change
-let NUMBERTOWIN = 10;
+let NUMBERTOWIN = 15;
+let difficultyAdjuster = 0;
+let gameCounter = 1;
+let opponentScore = 0;
+let playerScore = 0;
 
 // Object to store all available tactics with their corresponding hidden amounts
 const allTactics = {
@@ -13,7 +17,7 @@ const allTactics = {
 	DiscoveredCheck: generateRandomEffect(-2.8, 4.8),
 	DoubleCheck: generateRandomEffect(2, 5.0),
 	Check: generateRandomEffect(-3.0, 4.0),
-	MateInOne: generateRandomEffect(20, 21),
+	MateInOne: generateRandomEffect((2*NUMBERTOWIN+difficultyAdjuster), (2*NUMBERTOWIN+difficultyAdjuster+1)),
 	EnPassant: generateRandomEffect(-2.0, 3.0),
 	HangOneOfYourPieces: generateRandomEffect(-4.5, -1),
 	OverloadOneOfOpponentsMinorPieces: generateRandomEffect(-1, 4.5),
@@ -63,6 +67,7 @@ let availableTactics = generateRandomTactics(); // Initial set of tactics
 function makeMove(buttonId) {
     const buttonIndex = parseInt(buttonId.replace("button", ""), 10) - 1; // Extract button index
     const tactic = availableTactics[buttonIndex];
+	
     
     if (tactic) {
         const moveValue = allTactics[tactic];
@@ -71,18 +76,41 @@ function makeMove(buttonId) {
 		displayLastTurn();
         displayEvaluation();
 		updateEvaluationMeter();
-
-        if (evaluation >= NUMBERTOWIN) {
-            alert("You have won by checkmate!");
-            resetGame();
-        } else if (evaluation <= -NUMBERTOWIN) {
-            alert("You lost! Opponent wins by checkmate!");
-            resetGame();
-        }
-
-        // Generate a new set of tactics for the next turn
+		
+		// Generate a new set of tactics for the next turn
         availableTactics = weightedRandomTactics();
         updateButtonLabels();
+		
+		// Check for a draw
+		if (tactic === "Stalemate" || tactic === "AcceptDraw" || tactic === "PerpetualCheck" || tactic === "MakeThreefoldRepetition") {
+			drawGame();
+			if (gameCounter == 2){ // if going into the second game, make it much harder
+				difficultyAdjuster = 10;
+			} else if (gameCounter == 3){ // if going into the third game, make it medium difficulty 
+				difficultyAdjuster = 1.5;
+			}
+			return;
+		}
+        if ((evaluation+0.1) >= NUMBERTOWIN) {
+			playerWinGame();
+			if (gameCounter == 2){ // if going into the second game, make it much harder
+				difficultyAdjuster = 10;
+			} else if (gameCounter == 3){ // if going into the third game, make it medium difficulty 
+				difficultyAdjuster = 1.5;
+			}
+            return;
+			
+        } else if ((evaluation-0.1) <= -NUMBERTOWIN) {
+			opponentWinGame();
+			if (gameCounter == 2){ // if going into the second game, make it much harder
+				difficultyAdjuster = 10;
+			} else if (gameCounter == 3){ // if going into the third game, make it medium difficulty 
+				difficultyAdjuster = 1.5;
+			}
+			return;
+            
+        }
+
     } else {
         alert("Invalid move!");
     }
@@ -124,32 +152,32 @@ function weightedRandomTactics() {
 		PutOpponentInZugzwang: 25,
 		QueenSacrifice: 10,
 		RookSacrifice: 15,
-		SacrificeMinorPiece: 30,
-		SacrificePawn: 40,
-		ExchangeEqualPieces: 50,
-		OfferAnEqualTrade: 55,
-		TradePiecesInYourFavor: 45,
-		ClaimAnImportantSquare: 50,
-		TakeTheCenter: 50,
+		SacrificeMinorPiece: 20,
+		SacrificePawn: 30,
+		ExchangeEqualPieces: 40,
+		OfferAnEqualTrade: 45,
+		TradePiecesInYourFavor: 35,
+		ClaimAnImportantSquare: 40,
+		TakeTheCenter: 40,
 		ExpandTerritory: 100,
 		DefendTerritory: 100,
 		DevelopYourKnight: 100,
-		DevelopYourRook: 70,
+		DevelopYourRook: 60,
 		AttackOpponentsPawn: 100,
 		AttackOpponentsBishop: 100,
-		AttackOpponentsRook: 80,
-		AttackOpponentsQueen: 70,
+		AttackOpponentsRook: 70,
+		AttackOpponentsQueen: 60,
 		DefendPawn: 100,
 		DefendMinorPiece: 100,
-		DefendMajorPiece: 70,
+		DefendMajorPiece: 60,
 		Fork: 40,
 		RoyalFork: 15,
 		XrayAttack: 35,
 		OfferDraw: 100,
-		Stalemate: 25,
-		PerpetualCheck: 10,
-		AcceptDraw: 45,
-		MakeThreefoldRepetition: 35,
+		Stalemate: 35,
+		PerpetualCheck: 15,
+		AcceptDraw: 55,
+		MakeThreefoldRepetition: 30,
 		
     };
     
@@ -196,7 +224,7 @@ function updateButtonLabels() {
 
 // Function to generate a random effect within a specified range
 function generateRandomEffect(min, max) {
-    return Math.random() * (max - min) + min;
+    return (Math.random() * (max - min) + min);
 }
 
 // Function to update the evaluation
@@ -208,6 +236,14 @@ function updateEvaluation(value) {
 function displayEvaluation() {
     const evaluationDiv = document.getElementById("evaluation");
     evaluationDiv.textContent = `Evaluation: ${evaluation.toFixed(1)}`;
+
+}
+
+function displayGameCounter() {
+	const gameCounterDiv = document.getElementById("gameCounter");
+    gameCounterDiv.textContent = `Game #${gameCounter}`;
+
+
 
 }
 
@@ -229,10 +265,11 @@ function displayLastTurn() {
     }
 }
 
-// Function to reset the game
+// Function to reset the game (DEFUNCT)
 function resetGame() {
     evaluation = 0;
     displayEvaluation();
+	updateEvaluationMeter();
     // Reset button labels
     const buttons = document.querySelectorAll("button");
     buttons.forEach((button, index) => {
@@ -240,20 +277,66 @@ function resetGame() {
     });
 }
 
+// Function to win player the game and reset
+function playerWinGame() {
+	alert("You have won by checkmate!");
+	gameCounter = gameCounter + 1;
+	playerScore = playerScore + 1;
+	
+    evaluation = 0;
+	lastTurn = 0;
+	displayLastTurn();
+    displayEvaluation();
+	updateEvaluationMeter();
+	displayGameCounter();
+    // Reset button labels
+    const buttons = document.querySelectorAll("button");
+    buttons.forEach((button, index) => {
+        button.textContent = `Start Game #${gameCounter}`;
+    });
+}
 
+// Function to win opponent the game and reset
+function opponentWinGame() {
+	alert("You lost! Opponent wins by checkmate!");
+	gameCounter = gameCounter + 1;
+	opponentScore = opponentScore + 1;
+	
+    evaluation = 0;
+	lastTurn = 0;
+	displayLastTurn();
+    displayEvaluation();
+	updateEvaluationMeter();
+	displayGameCounter();
+    // Reset button labels
+    const buttons = document.querySelectorAll("button");
+    buttons.forEach((button, index) => {
+        button.textContent = `Start Game #${gameCounter}`;
+    });
+}
+
+// Function to draw and reset the game
 function drawGame() {
 	alert("The game has ended in a draw!");
+	gameCounter = gameCounter + 1;
+	playerScore = playerScore + 0.5;
+	opponentScore = opponentScore + 0.5;
+	
     evaluation = 0;
+	lastTurn = 0;
+	displayLastTurn();
     displayEvaluation();
+	updateEvaluationMeter();
+	displayGameCounter();
     // Reset button labels
     const buttons = document.querySelectorAll("button");
     buttons.forEach((button, index) => {
-        button.textContent = "Make Move";
+        button.textContent = `Start Game #${gameCounter}`;
     });
 }
 
 
-// Testing to see if this works
+// Code to display / update the eval meter
 function updateEvaluationMeter() {
     const meterDiv = document.getElementById("EvaluationMeter");
 	
