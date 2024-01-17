@@ -85,9 +85,9 @@ function makeMove(buttonId) {
 		if (tactic === "Stalemate" || tactic === "AcceptDraw" || tactic === "PerpetualCheck" || tactic === "MakeThreefoldRepetition") {
 			drawGame();
 			if (gameCounter == 2){ // if going into the second game, make it much harder
-				difficultyAdjuster = 2.5;
+				difficultyAdjuster = 2.0;
 			} else if (gameCounter == 3){ // if going into the third game, make it medium difficulty 
-				difficultyAdjuster = 1.5;
+				difficultyAdjuster = 0.9;
 			} else if (gameCounter == 4){
 				if (playerScore >= opponentScore){
 					alert("All three games are over! The winner is... YOU! Congratulations. Play again?")
@@ -100,9 +100,9 @@ function makeMove(buttonId) {
         if ((evaluation+0.1) >= NUMBERTOWIN) {
 			playerWinGame();
 			if (gameCounter == 2){ // if going into the second game, make it much harder
-				difficultyAdjuster = 2.5;
+				difficultyAdjuster = 2.0;
 			} else if (gameCounter == 3){ // if going into the third game, make it medium difficulty 
-				difficultyAdjuster = 1.5;
+				difficultyAdjuster = 0.9;
 			} else if (gameCounter == 4){
 				if (playerScore >= opponentScore){
 					alert("All three games are over! The winner is... YOU! Congratulations. Play again?")
@@ -115,9 +115,9 @@ function makeMove(buttonId) {
         } else if ((evaluation-0.1) <= -NUMBERTOWIN) {
 			opponentWinGame();
 			if (gameCounter == 2){ // if going into the second game, make it much harder
-				difficultyAdjuster = 2.5;
+				difficultyAdjuster = 2.0;
 			} else if (gameCounter == 3){ // if going into the third game, make it medium difficulty 
-				difficultyAdjuster = 1.5;
+				difficultyAdjuster = 0.9;
 			} else if (gameCounter == 4){
 				if (playerScore >= opponentScore){
 					alert("All three games are over! The winner is... YOU! Congratulations. Play again?")
@@ -155,7 +155,7 @@ function weightedRandomTactics() {
 		DiscoveredCheck: 25,
 		DoubleCheck: 15,
 		Check: 50,
-		MateInOne: 3,
+		MateInOne: 2,
 		EnPassant: 9,
 		HangOneOfYourPieces: 100,
 		OverloadOneOfOpponentsMinorPieces: 30,
@@ -301,8 +301,6 @@ function resetGame() {
 
 // Function to win player the game and reset
 function playerWinGame() {
-	alert("You have won by checkmate!");
-	gameCounter = gameCounter + 1;
 	playerScore = playerScore + 1;
 	
     evaluation = 0;
@@ -316,12 +314,15 @@ function playerWinGame() {
     buttons.forEach((button, index) => {
         button.textContent = `Start Game #${gameCounter}`;
     });
+	
+	alert(`You have WON game #${gameCounter}`);
+	gameCounter = gameCounter + 1;
+	displayGameCounter();
 }
 
 // Function to win opponent the game and reset
 function opponentWinGame() {
-	alert("You lost! Opponent wins by checkmate!");
-	gameCounter = gameCounter + 1;
+	
 	opponentScore = opponentScore + 1;
 	
     evaluation = 0;
@@ -335,6 +336,9 @@ function opponentWinGame() {
     buttons.forEach((button, index) => {
         button.textContent = `Start Game #${gameCounter}`;
     });
+	alert("You lost! Opponent wins by checkmate!");
+	gameCounter = gameCounter + 1;
+	displayGameCounter();
 }
 
 // Function to draw and reset the game
@@ -355,6 +359,9 @@ function drawGame() {
     buttons.forEach((button, index) => {
         button.textContent = `Start Game #${gameCounter}`;
     });
+	alert("The game has ended in a draw!");
+	gameCounter = gameCounter + 1;
+	displayGameCounter();
 }
 
 
