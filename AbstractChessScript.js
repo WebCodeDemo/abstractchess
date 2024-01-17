@@ -302,6 +302,9 @@ function resetGame() {
 // Function to win player the game and reset
 function playerWinGame() {
 	playerScore = playerScore + 1;
+	alert(`You WON Game #${gameCounter}!\nYour Score: ${playerScore}\nOpponents Score: ${opponentScore}`);
+	gameCounter = gameCounter + 1;
+	
 	
     evaluation = 0;
 	lastTurn = 0;
@@ -315,15 +318,16 @@ function playerWinGame() {
         button.textContent = `Start Game #${gameCounter}`;
     });
 	
-	alert(`You have WON game #${gameCounter}`);
-	gameCounter = gameCounter + 1;
-	displayGameCounter();
+	
+	
 }
 
 // Function to win opponent the game and reset
 function opponentWinGame() {
-	
 	opponentScore = opponentScore + 1;
+	alert(`You Lost! Opponent Wins Game #${gameCounter}!\nYour Score: ${playerScore}\nOpponents Score: ${opponentScore}`);
+	gameCounter = gameCounter + 1;
+	
 	
     evaluation = 0;
 	lastTurn = 0;
@@ -336,17 +340,16 @@ function opponentWinGame() {
     buttons.forEach((button, index) => {
         button.textContent = `Start Game #${gameCounter}`;
     });
-	alert("You lost! Opponent wins by checkmate!");
-	gameCounter = gameCounter + 1;
-	displayGameCounter();
+	
 }
 
 // Function to draw and reset the game
 function drawGame() {
-	alert("The game has ended in a draw!");
-	gameCounter = gameCounter + 1;
 	playerScore = playerScore + 0.5;
 	opponentScore = opponentScore + 0.5;
+	alert(`Game #${gameCounter} has ended in a DRAW.\nYour Score: ${playerScore}\nOpponents Score: ${opponentScore}`);
+	gameCounter = gameCounter + 1;
+	
 	
     evaluation = 0;
 	lastTurn = 0;
@@ -359,9 +362,6 @@ function drawGame() {
     buttons.forEach((button, index) => {
         button.textContent = `Start Game #${gameCounter}`;
     });
-	alert("The game has ended in a draw!");
-	gameCounter = gameCounter + 1;
-	displayGameCounter();
 }
 
 
